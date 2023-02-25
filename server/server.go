@@ -1,4 +1,4 @@
-package web
+package server
 
 import (
 	"compress/gzip"
@@ -113,6 +113,10 @@ func Encode(w http.ResponseWriter, r *http.Request, status int, v interface{}) e
 }
 
 func Authorized(rpcRoles, userRoles []string) bool {
+	// public endpoint if rpcRoles are not set
+	if len(rpcRoles) == 0 {
+		return true
+	}
 	for _, want := range rpcRoles {
 		for _, has := range userRoles {
 			if want == has {
@@ -142,12 +146,21 @@ func (s *Server) DefaultHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	claims, err := auth.GetClaims(ctx)
-	if err != nil {
+	if len(rpc.Roles) > 0 {
+		claims, err := auth.GetClaims(ctx)
+		if err != nil {
+			Unauthorized(w, r)
+			return
+		}
+		g.Claims = claims
+	} else {
+		g.Claims = auth.Claims{}
+	}
+
+	if ok := Authorized(rpc.Roles, g.Claims.Roles); !ok {
 		Unauthorized(w, r)
 		return
 	}
-	g.Claims = claims
 
 	v, err := values.GetValues(ctx)
 	if err != nil {
@@ -155,11 +168,6 @@ func (s *Server) DefaultHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	g.Values = v
-
-	if ok := Authorized(rpc.Roles, g.Claims.Roles); !ok {
-		Unauthorized(w, r)
-		return
-	}
 
 	b, err := ioutil.ReadAll(r.Body)
 	if err != nil {
