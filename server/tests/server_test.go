@@ -1,4 +1,5 @@
 package tests
+
 import (
 	"bytes"
 	"crypto/rand"
@@ -30,15 +31,18 @@ type ServerTest struct {
 }
 
 func Test_ServerWithRegisteredEndpoints(t *testing.T) {
+	// Configure seed server
+	validAuth := GetAuth()
+	authMid := mid.AuthMiddleware(validAuth)
+	mw := append([]mid.Middleware{authMid}, mid.CommonMiddleware...)
+	s := server.NewServer(mw)
+	mid.MultipleMiddleware(s.DefaultHandler, mid.CommonMiddleware...)
 
-	const keyID = "54bb2165-71e1-41a6-af3e-7da4a0e1e2c1"
-	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	// Register GreeterServicer
+	gs := NewGreeterServicer()
+	gs.Register(s)
 
-	ks := keystore.New()
-	ks.Add(privateKey, keyID)
-	a, err := auth.New(keyID, ks)
-	authMid := mid.AuthMiddleware(a)
-
+	// Create tokens for tests
 	claims := auth.Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    "seed project",
@@ -49,39 +53,26 @@ func Test_ServerWithRegisteredEndpoints(t *testing.T) {
 		Roles: []string{auth.RoleUser},
 	}
 
-	token, err := a.GenerateToken(claims)
-	if err != nil {
-		t.Fatalf("failed to generate token")
-	}
-
-	const keyID2 = "54bb2165-71e1-41a6-af3e-7da4a0e1e2c1"
-	privateKey2, _ := rsa.GenerateKey(rand.Reader, 2048)
-
-	ks2 := keystore.New()
-	ks2.Add(privateKey2, keyID2)
-	a2, _ := auth.New(keyID2, ks2)
-
-	invalidToken, _ := a2.GenerateToken(claims)
-	if err != nil {
-		t.Fatalf("failed to generate token")
-	}
-
-	mw := append([]mid.Middleware{authMid}, mid.CommonMiddleware...)
-	s := server.NewServer(mw)
-
-	mid.MultipleMiddleware(s.DefaultHandler, mid.CommonMiddleware...)
-
-	// Register GreeterServicer
-	gs := NewGreeterServicer()
-	gs.Register(s)
+	userToken, _ := validAuth.GenerateToken(claims)
+	invalidAuth := GetAuth()
+	invalidToken, _ := invalidAuth.GenerateToken(claims)
 
 	tests := ServerTest{
 		app:          s,
-		userToken:    token,
+		userToken:    userToken,
 		invalidToken: invalidToken,
 	}
 
 	t.Run("Server", tests.Test_Server)
+}
+
+func GetAuth() *auth.Auth {
+	const keyID = "54bb2165-71e1-41a6-af3e-7da4a0e1e2c1"
+	privateKey, _ := rsa.GenerateKey(rand.Reader, 2048)
+	ks := keystore.New()
+	ks.Add(privateKey, keyID)
+	a, _ := auth.New(keyID, ks)
+	return a
 }
 
 func (st *ServerTest) Test_Server(t *testing.T) {
