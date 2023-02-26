@@ -25,7 +25,7 @@ type GreeterRpcService interface {
 type GreeterServicer struct{}
 
 // GreetHandler validates input data prior to calling Greet
-func (gs GreeterServicer) GreetHandler(g server.GenericRequest, b []byte) (any, error) {
+func (gs GreeterServicer) GreetHandler(r server.GenericRequest, b []byte) (any, error) {
 	var gr GreetRequest
 	if err := json.Unmarshal(b, &gr); err != nil {
 		return nil, fmt.Errorf("Unmarshalling data: %w", err)
@@ -35,7 +35,7 @@ func (gs GreeterServicer) GreetHandler(g server.GenericRequest, b []byte) (any, 
 		return nil, fmt.Errorf("validating data: %w", err)
 	}
 
-	return gs.Greet(gr, g), nil
+	return gs.Greet(gr, r), nil
 }
 
 // Greet implements GreeterRpcService

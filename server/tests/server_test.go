@@ -39,7 +39,7 @@ func Test_ServerWithRegisteredEndpoints(t *testing.T) {
 	mid.MultipleMiddleware(s.DefaultHandler, mid.CommonMiddleware...)
 
 	// Register GreeterServicer
-	gs := NewGreeterServicer()
+	gs := NewSecretGreeterServicer()
 	gs.Register(s)
 
 	// Create tokens for tests
