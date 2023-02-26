@@ -53,11 +53,11 @@ func (GreeterServicer) Greet(req GreetRequest, gr server.GenericRequest) GreetRe
 func (gs GreeterServicer) SecretGreetHandler(g server.GenericRequest, b []byte) (any, error) {
 	var gr SecretGreetRequest
 	if err := json.Unmarshal(b, &gr); err != nil {
-		return nil, fmt.Errorf("Unmarshalling data: %w", err)
+		return SecretGreetResponse{Error: "Invalid GreetRequest data."}, nil
 	}
 
 	if err := validate.Check(gr); err != nil {
-		return nil, fmt.Errorf("validating data: %w", err)
+		return SecretGreetResponse{Error: fmt.Errorf("validating data: %w", err).Error()}, nil
 	}
 
 	return gs.SecretGreet(gr, g), nil
@@ -102,7 +102,7 @@ type GreetResponse struct {
 type SecretGreetRequest struct {
 	// Alias is the person to greet.
 	// It is required.
-	Alias string
+	Alias string `json:"alias" validate:"gte=1"`
 }
 
 // SecretGreetResponse is the response object containing a

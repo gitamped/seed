@@ -88,14 +88,24 @@ func (st *ServerTest) Test_Server(t *testing.T) {
 			URL                string
 			RequestData        string
 		}{
-			// test valid name
+			// test valid alias
 			{
-				TestTitle:          "When passed a valid name",
+				TestTitle:          "When passed a valid alias",
 				ExpectedStatusCode: 200,
 				ExpectedError:      false,
 				Token:              st.userToken,
 				URL:                "/v1/GreeterService.SecretGreet",
 				RequestData:        `{"alias": "Seed Client"}`,
+			},
+			// test valid alias
+			{
+				TestTitle:          "When passed a invalid alias",
+				ExpectedStatusCode: 200,
+				ExpectedError:      true,
+				ExpectedErrorText:  `validating data: [{"field":"alias","error":"alias must be at least 1 character in length"}]`,
+				Token:              st.userToken,
+				URL:                "/v1/GreeterService.SecretGreet",
+				RequestData:        `{"alias": ""}`,
 			},
 			// test invalid user
 			{
