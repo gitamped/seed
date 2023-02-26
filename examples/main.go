@@ -17,7 +17,7 @@ func main() {
 	gs := NewGreeterServicer()
 	gs.Register(s)
 
-	//
+	// Listen
 	fmt.Println(`Listening on port 8080`)
 	fmt.Println(`test cmd: curl -X POST  --data '{"name": "seed client"}' http://localhost:8080/v1/GreeterService.Greet`)
 	http.Handle("/v1/", s)

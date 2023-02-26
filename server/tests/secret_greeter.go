@@ -10,24 +10,24 @@ import (
 	"github.com/gitamped/seed/validate"
 )
 
-// GreeterService is a polite API for greeting people.
-type GreeterService interface {
+// SecretGreeterService is a polite API for greeting people.
+type SecretGreeterService interface {
 	// SecretGreet requires user to authenticated and authorized before sending lovely greeting.
 	SecretGreet(SecretGreetRequest, server.GenericRequest) SecretGreetResponse
 }
 
 // Required to register endpoints with the Server
-type GreeterRpcService interface {
-	GreeterService
+type SecretGreeterRpcService interface {
+	SecretGreeterService
 	// Registers RPCService with Server
 	Register(s *server.Server)
 }
 
 // Implements interface
-type GreeterServicer struct{}
+type SecretGreeterServicer struct{}
 
 // SecretGreetHandler validates input data prior to calling SecretGreet
-func (gs GreeterServicer) SecretGreetHandler(g server.GenericRequest, b []byte) (any, error) {
+func (gs SecretGreeterServicer) SecretGreetHandler(g server.GenericRequest, b []byte) (any, error) {
 	var gr SecretGreetRequest
 	if err := json.Unmarshal(b, &gr); err != nil {
 		return SecretGreetResponse{Error: "Invalid GreetRequest data."}, nil
@@ -40,43 +40,26 @@ func (gs GreeterServicer) SecretGreetHandler(g server.GenericRequest, b []byte) 
 	return gs.SecretGreet(gr, g), nil
 }
 
-// SecretGreet implements GreeterRpcService
-func (GreeterServicer) SecretGreet(req SecretGreetRequest, gr server.GenericRequest) SecretGreetResponse {
+// SecretGreet implements SecretGreeterRpcService
+func (SecretGreeterServicer) SecretGreet(req SecretGreetRequest, gr server.GenericRequest) SecretGreetResponse {
 	return SecretGreetResponse{
 		SecretGreeting: fmt.Sprintf("Hello %s, meet at %s", req.Alias, gr.Values.Now.Add(time.Hour*2)),
 	}
 }
 
-// Register implements GreeterRpcService
-func (gs GreeterServicer) Register(s *server.Server) {
+// Register implements SecretGreeterRpcService
+func (gs SecretGreeterServicer) Register(s *server.Server) {
 	s.Register("GreeterService", "SecretGreet", server.RPCEndpoint{Roles: []string{auth.RoleUser}, Handler: gs.SecretGreetHandler})
 }
 
-// Create new GreeterServicer
-func NewGreeterServicer() GreeterRpcService {
-	return GreeterServicer{}
+// Create new SecretGreeterServicer
+func NewSecretGreeterServicer() SecretGreeterRpcService {
+	return SecretGreeterServicer{}
 }
 
-// GreetRequest is the request object for GreeterService.Greet.
-type GreetRequest struct {
-	// Name is the person to greet.
-	// It is required.
-	Name string
-}
-
-// GreetResponse is the response object containing a
-// person's greeting.
-type GreetResponse struct {
-	// Greeting is a nice message welcoming somebody.
-	Greeting string
-	// Error message if request was not successful
-	Error string
-}
-
-// SecretGreetRequest is the request object for GreeterService.SecretGreet.
+// SecretGreetRequest is the request object for SecretGreeterService.SecretGreet.
 type SecretGreetRequest struct {
 	// Alias is the person to greet.
-	// It is required.
 	Alias string `json:"alias" validate:"gte=1"`
 }
 
