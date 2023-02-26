@@ -12,8 +12,6 @@ import (
 
 // GreeterService is a polite API for greeting people.
 type GreeterService interface {
-	// Greet prepares a lovely greeting.
-	Greet(GreetRequest, server.GenericRequest) GreetResponse
 	// SecretGreet requires user to authenticated and authorized before sending lovely greeting.
 	SecretGreet(SecretGreetRequest, server.GenericRequest) SecretGreetResponse
 }
@@ -27,27 +25,6 @@ type GreeterRpcService interface {
 
 // Implements interface
 type GreeterServicer struct{}
-
-// GreetHandler validates input data prior to calling Greet
-func (gs GreeterServicer) GreetHandler(g server.GenericRequest, b []byte) (any, error) {
-	var gr GreetRequest
-	if err := json.Unmarshal(b, &gr); err != nil {
-		return nil, fmt.Errorf("Unmarshalling data: %w", err)
-	}
-
-	if err := validate.Check(gr); err != nil {
-		return nil, fmt.Errorf("validating data: %w", err)
-	}
-
-	return gs.Greet(gr, g), nil
-}
-
-// Greet implements GreeterRpcService
-func (GreeterServicer) Greet(req GreetRequest, gr server.GenericRequest) GreetResponse {
-	return GreetResponse{
-		Greeting: fmt.Sprintf("Hello %s, the current time is %s", req.Name, gr.Values.Now),
-	}
-}
 
 // SecretGreetHandler validates input data prior to calling SecretGreet
 func (gs GreeterServicer) SecretGreetHandler(g server.GenericRequest, b []byte) (any, error) {
@@ -72,9 +49,7 @@ func (GreeterServicer) SecretGreet(req SecretGreetRequest, gr server.GenericRequ
 
 // Register implements GreeterRpcService
 func (gs GreeterServicer) Register(s *server.Server) {
-	s.Register("GreeterService", "Greet", server.RPCEndpoint{Roles: []string{}, Handler: gs.GreetHandler})
 	s.Register("GreeterService", "SecretGreet", server.RPCEndpoint{Roles: []string{auth.RoleUser}, Handler: gs.SecretGreetHandler})
-
 }
 
 // Create new GreeterServicer
