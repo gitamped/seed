@@ -6,10 +6,10 @@ package server
 	Copyright (c) 2021 Pace Software Ltd
 
 	Modifications:
-		Modified the ServeHTTP method.
-		Added authn/z check.
-		Added middleware.
-		Rewrote http handler function.
+    - Modified the ServeHTTP method.
+	- Added authn/z check.
+	- Added middleware.
+	- Rewrote http handler function.
 */
 import (
 	"compress/gzip"
