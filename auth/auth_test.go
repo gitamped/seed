@@ -1,5 +1,10 @@
 package auth_test
 
+/*
+	https://github.com/ardanlabs/service
+	Apache License Version 2.0
+	Copyright (c) Ardan Labs
+*/
 import (
 	"crypto/rand"
 	"crypto/rsa"

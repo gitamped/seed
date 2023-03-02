@@ -1,6 +1,11 @@
 // Package validate contains the support for validating models.
 package validate
 
+/*
+	https://github.com/ardanlabs/service
+	Apache License Version 2.0
+	Copyright (c) Ardan Labs
+*/
 import (
 	"errors"
 	"reflect"

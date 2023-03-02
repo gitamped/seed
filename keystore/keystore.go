@@ -2,6 +2,11 @@
 // an in-memory keystore for JWT support.
 package keystore
 
+/*
+	https://github.com/ardanlabs/service
+	Apache License Version 2.0
+	Copyright (c) Ardan Labs
+*/
 import (
 	"crypto/rsa"
 	"errors"
