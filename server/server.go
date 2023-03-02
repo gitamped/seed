@@ -80,6 +80,10 @@ type Server struct {
 
 // ServeHTTP serves the request.
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		s.NotFound.ServeHTTP(w, r)
+		return
+	}
 	s.Handler(w, r)
 }
 
