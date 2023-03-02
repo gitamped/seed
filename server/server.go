@@ -1,5 +1,16 @@
 package server
 
+/*
+	https://github.com/pacedotdev/oto.git
+	The MIT License (MIT)
+	Copyright (c) 2021 Pace Software Ltd
+
+	Modifications:
+	- Modified the ServeHTTP method.
+	- Added authn/z check.
+	- Added middleware.
+	- Rewrote http handler function.
+*/
 import (
 	"compress/gzip"
 	"context"

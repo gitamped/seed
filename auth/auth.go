@@ -1,6 +1,11 @@
 // Package auth provides authentication and authorization support.
 package auth
 
+/*
+	https://github.com/ardanlabs/service
+	Apache License Version 2.0
+	Copyright (c) Ardan Labs
+*/
 import (
 	"crypto/rsa"
 	"errors"

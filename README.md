@@ -60,18 +60,3 @@ func (gs GreeterServicer) GreetHandler(r server.GenericRequest, b []byte) (any, 
 	return gs.Greet(gr, r), nil
 }
 ```
-
-## Inspiration
-
-##### Ardan Labs Service 
-Pulled the [auth](./auth), [keystore](./keystore/), [validate](./validate/), and [values](./values/) code from [ardanlabs service repo](https://github.com/ardanlabs/service.git).
-
-##### Oto
-The rpc over http server code was pulled from [oto](https://github.com/pacedotdev/oto).
-
-Refactor Highlights:
-- The server has one http handler.
-    - Adds needed `http.Request` data from middleware into the `GenericRequest` struct.
-- All Routes handlers defined with the `RPCEndpoint` func.
-- Adds ability to add middleware.
-- Adds ability to set roles per route.
